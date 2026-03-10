@@ -1,199 +1,238 @@
 import React from 'react';
-import { X, Calendar, User, Stethoscope, Clock } from 'lucide-react';
+import { 
+  Users, 
+  Calendar, 
+  DollarSign, 
+  TrendingUp,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  ArrowUpRight,
+  ArrowDownRight
+} from 'lucide-react';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-interface AppointmentsFiltersProps {
-  isOpen: boolean;
-  onClose: () => void;
-  filters: {
-    status: string[];
-    doctor: string;
-    dateFrom: string;
-    dateTo: string;
-    timeSlot: string;
-  };
-  onFilterChange: (filters: any) => void;
-}
-
-export function AppointmentsFilters({ isOpen, onClose, filters, onFilterChange }: AppointmentsFiltersProps) {
-  if (!isOpen) return null;
-
-  const statusOptions = [
-    { value: 'confirmed', label: 'Confirmada', color: 'green' },
-    { value: 'pending', label: 'Pendiente', color: 'yellow' },
-    { value: 'cancelled', label: 'Cancelada', color: 'red' },
-    { value: 'completed', label: 'Atendida', color: 'blue' },
+export function Dashboard() {
+  const stats = [
+    {
+      title: 'Citas Hoy',
+      value: '12',
+      change: '+8%',
+      trend: 'up',
+      icon: Calendar,
+      color: 'bg-blue-50 text-blue-600',
+    },
+    {
+      title: 'Pacientes Atendidos',
+      value: '8',
+      change: '+12%',
+      trend: 'up',
+      icon: Users,
+      color: 'bg-green-50 text-green-600',
+    },
+    {
+      title: 'Ingresos del Día',
+      value: '$2,450',
+      change: '+23%',
+      trend: 'up',
+      icon: DollarSign,
+      color: 'bg-purple-50 text-purple-600',
+    },
+    {
+      title: 'Tasa de Ocupación',
+      value: '85%',
+      change: '-3%',
+      trend: 'down',
+      icon: TrendingUp,
+      color: 'bg-orange-50 text-orange-600',
+    },
   ];
 
-  const doctors = [
-    'Todos los doctores',
-    'Dr. Roberto Sánchez',
-    'Dra. Carmen Torres',
-    'Dra. María Martínez',
-    'Dr. Luis Torres'
+  const upcomingAppointments = [
+    { id: 1, time: '09:00', patient: 'Ana García', doctor: 'Dr. Sánchez', type: 'Limpieza', status: 'confirmed' },
+    { id: 2, time: '10:30', patient: 'Carlos López', doctor: 'Dra. Martínez', type: 'Ortodoncia', status: 'confirmed' },
+    { id: 3, time: '11:00', patient: 'María Rodríguez', doctor: 'Dr. Sánchez', type: 'Extracción', status: 'pending' },
+    { id: 4, time: '14:00', patient: 'José Hernández', doctor: 'Dr. Torres', type: 'Endodoncia', status: 'confirmed' },
+    { id: 5, time: '15:30', patient: 'Laura Pérez', doctor: 'Dra. Martínez', type: 'Consulta', status: 'pending' },
   ];
 
-  const timeSlots = [
-    'Cualquier hora',
-    'Mañana (8:00 - 12:00)',
-    'Mediodía (12:00 - 14:00)',
-    'Tarde (14:00 - 18:00)',
-    'Noche (18:00 - 20:00)'
+  const revenueData = [
+    { month: 'Ene', revenue: 12000 },
+    { month: 'Feb', revenue: 19000 },
+    { month: 'Mar', revenue: 15000 },
+    { month: 'Abr', revenue: 22000 },
+    { month: 'May', revenue: 28000 },
+    { month: 'Jun', revenue: 25000 },
   ];
 
-  const handleStatusToggle = (status: string) => {
-    const newStatus = filters.status.includes(status)
-      ? filters.status.filter(s => s !== status)
-      : [...filters.status, status];
-    onFilterChange({ ...filters, status: newStatus });
-  };
+  const treatmentData = [
+    { name: 'Limpiezas', value: 35, color: '#0066CC' },
+    { name: 'Ortodoncia', value: 25, color: '#10B981' },
+    { name: 'Endodoncia', value: 20, color: '#F59E0B' },
+    { name: 'Implantes', value: 15, color: '#EF4444' },
+    { name: 'Otros', value: 5, color: '#6B7280' },
+  ];
 
-  const handleReset = () => {
-    onFilterChange({
-      status: [],
-      doctor: '',
-      dateFrom: '',
-      dateTo: '',
-      timeSlot: ''
-    });
-  };
-
-  const handleApply = () => {
-    onClose();
-  };
+  const alerts = [
+    { id: 1, type: 'warning', message: '3 pacientes con pagos pendientes', time: 'Hace 2 horas' },
+    { id: 2, type: 'info', message: 'Recordatorio: Mantenimiento de equipos programado para mañana', time: 'Hace 4 horas' },
+    { id: 3, type: 'success', message: 'Nuevo paciente registrado: Pedro Jiménez', time: 'Hace 1 día' },
+  ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Filtros Avanzados</h2>
-            <p className="text-sm text-gray-500 mt-1">Personaliza la vista de tus citas</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-500" />
-          </button>
-        </div>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <p className="text-gray-500 mt-1">Bienvenido de nuevo, aquí está el resumen de hoy</p>
+      </div>
 
-        {/* Filters */}
-        <div className="p-6 space-y-6">
-          {/* Status Filter */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Clock className="w-4 h-4" />
-              Estado de la Cita
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              {statusOptions.map((status) => (
-                <button
-                  key={status.value}
-                  onClick={() => handleStatusToggle(status.value)}
-                  className={`p-3 border-2 rounded-lg text-left transition-all ${
-                    filters.status.includes(status.value)
-                      ? `border-${status.color}-500 bg-${status.color}-50`
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full bg-${status.color}-500`}></div>
-                    <span className="font-medium text-gray-900">{status.label}</span>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          const TrendIcon = stat.trend === 'up' ? ArrowUpRight : ArrowDownRight;
+          
+          return (
+            <div key={index} className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">{stat.title}</p>
+                  <p className="text-3xl font-semibold text-gray-900 mt-2">{stat.value}</p>
+                  <div className={`flex items-center gap-1 mt-2 text-sm ${
+                    stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    <TrendIcon className="w-4 h-4" />
+                    <span>{stat.change} vs mes anterior</span>
                   </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Doctor Filter */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Stethoscope className="w-4 h-4" />
-              Profesional
-            </label>
-            <select
-              value={filters.doctor}
-              onChange={(e) => onFilterChange({ ...filters, doctor: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
-            >
-              {doctors.map((doctor) => (
-                <option key={doctor} value={doctor}>
-                  {doctor}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Date Range */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Calendar className="w-4 h-4" />
-              Rango de Fechas
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-gray-600 mb-1 block">Desde</label>
-                <input
-                  type="date"
-                  value={filters.dateFrom}
-                  onChange={(e) => onFilterChange({ ...filters, dateFrom: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 mb-1 block">Hasta</label>
-                <input
-                  type="date"
-                  value={filters.dateTo}
-                  onChange={(e) => onFilterChange({ ...filters, dateTo: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
-                />
+                </div>
+                <div className={`${stat.color} p-3 rounded-lg`}>
+                  <Icon className="w-6 h-6" />
+                </div>
               </div>
             </div>
-          </div>
+          );
+        })}
+      </div>
 
-          {/* Time Slot */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Clock className="w-4 h-4" />
-              Franja Horaria
-            </label>
-            <select
-              value={filters.timeSlot}
-              onChange={(e) => onFilterChange({ ...filters, timeSlot: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
-            >
-              {timeSlots.map((slot) => (
-                <option key={slot} value={slot}>
-                  {slot}
-                </option>
-              ))}
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Revenue Chart */}
+        <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="font-semibold text-gray-900">Ingresos Mensuales</h3>
+              <p className="text-sm text-gray-500 mt-1">Últimos 6 meses</p>
+            </div>
+            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0066CC]">
+              <option>2026</option>
+              <option>2025</option>
             </select>
+          </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={revenueData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="revenue" stroke="#0066CC" strokeWidth={3} dot={{ fill: '#0066CC', r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Treatment Distribution */}
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <h3 className="font-semibold text-gray-900 mb-6">Distribución de Tratamientos</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={treatmentData}
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {treatmentData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="mt-4 space-y-2">
+            {treatmentData.map((item, index) => (
+              <div key={index} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                  <span className="text-gray-600">{item.name}</span>
+                </div>
+                <span className="font-medium text-gray-900">{item.value}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Upcoming Appointments */}
+        <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-semibold text-gray-900">Próximas Citas</h3>
+            <a href="/appointments" className="text-sm text-[#0066CC] hover:underline">Ver todas</a>
+          </div>
+          <div className="space-y-3">
+            {upcomingAppointments.map((appointment) => (
+              <div key={appointment.id} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <div className="flex items-center justify-center w-16 h-16 bg-blue-50 rounded-lg">
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-[#0066CC]">{appointment.time.split(':')[0]}</div>
+                    <div className="text-xs text-gray-500">{appointment.time.split(':')[1]}</div>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900">{appointment.patient}</p>
+                  <p className="text-sm text-gray-500">{appointment.type} • {appointment.doctor}</p>
+                </div>
+                <div>
+                  {appointment.status === 'confirmed' ? (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Confirmada
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs">
+                      <Clock className="w-3 h-3" />
+                      Pendiente
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex items-center justify-between gap-3">
-          <button
-            onClick={handleReset}
-            className="px-6 py-2.5 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors font-medium"
-          >
-            Restablecer
-          </button>
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleApply}
-              className="px-6 py-2.5 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors font-medium"
-            >
-              Aplicar Filtros
-            </button>
+        {/* Alerts */}
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <h3 className="font-semibold text-gray-900 mb-6">Alertas y Notificaciones</h3>
+          <div className="space-y-4">
+            {alerts.map((alert) => (
+              <div key={alert.id} className="flex gap-3">
+                <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
+                  alert.type === 'warning' ? 'bg-yellow-50 text-yellow-600' :
+                  alert.type === 'success' ? 'bg-green-50 text-green-600' :
+                  'bg-blue-50 text-blue-600'
+                }`}>
+                  <AlertCircle className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900">{alert.message}</p>
+                  <p className="text-xs text-gray-500 mt-1">{alert.time}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

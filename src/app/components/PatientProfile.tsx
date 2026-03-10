@@ -1,790 +1,524 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
-  ChevronLeft,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  Activity,
-  FileText,
-  DollarSign,
-  Edit,
-  Save,
-  X,
-  Download,
-  Printer,
-  Clock,
-  AlertCircle,
-  CheckCircle,
-  CreditCard,
-  Stethoscope,
-  Plus
+  ChevronLeft, User, Phone, Mail, MapPin, Calendar, Activity,
+  FileText, DollarSign, Edit, Save, X, Download, Printer,
+  Clock, AlertCircle, CreditCard, Stethoscope, Plus,
+  CheckCircle2, Heart, Shield, ChevronRight
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 
+// ─── Types ───────────────────────────────────────────────────────
 interface Patient {
-  id: number;
-  name: string;
-  age: number;
-  phone: string;
-  email: string;
-  address: string;
-  birthDate: string;
-  dni: string;
-  insurance: string;
-  policyNumber: string;
-  emergencyContact: string;
-  emergencyPhone: string;
-  allergies: string;
-  medicalConditions: string;
-  medications: string;
-  bloodType: string;
-  status: 'active' | 'inactive' | 'overdue';
-  registrationDate: string;
-  lastVisit: Date;
-  nextAppointment: Date | null;
-  balance: number;
+  id: number; name: string; age: number; phone: string; email: string;
+  address: string; birthDate: string; cedula: string; insurance: string;
+  policyNumber: string; emergencyContact: string; emergencyPhone: string;
+  allergies: string; medicalConditions: string; medications: string;
+  bloodType: string; status: 'active' | 'inactive' | 'overdue';
+  registrationDate: string; lastVisit: Date; nextAppointment: Date | null; balance: number;
 }
 
 interface Appointment {
-  id: number;
-  date: Date;
-  time: string;
-  treatment: string;
-  doctor: string;
-  status: 'completed' | 'scheduled' | 'cancelled';
-  notes?: string;
+  id: number; date: Date; time: string; treatment: string; doctor: string;
+  status: 'completed' | 'scheduled' | 'cancelled'; notes?: string;
 }
 
 interface Treatment {
-  id: number;
-  date: string;
-  tooth: string;
-  treatment: string;
-  doctor: string;
-  cost: number;
-  paid: number;
-  status: 'completed' | 'pending';
+  id: number; date: string; tooth: string; treatment: string;
+  doctor: string; cost: number; paid: number; status: 'completed' | 'pending';
 }
 
+// ─── Status config ────────────────────────────────────────────────
+const PATIENT_STATUS: Record<string, { bg: string; text: string; border: string; dot: string; label: string }> = {
+  active:    { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500', label: 'Activo'    },
+  inactive:  { bg: 'bg-gray-50',    text: 'text-gray-500',    border: 'border-gray-200',    dot: 'bg-gray-400',    label: 'Inactivo'  },
+  overdue:   { bg: 'bg-red-50',     text: 'text-red-700',     border: 'border-red-200',     dot: 'bg-red-500',     label: 'Moroso'    },
+  completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500', label: 'Completado'},
+  scheduled: { bg: 'bg-blue-50',    text: 'text-blue-700',    border: 'border-blue-200',    dot: 'bg-blue-500',    label: 'Agendado'  },
+  cancelled: { bg: 'bg-red-50',     text: 'text-red-700',     border: 'border-red-200',     dot: 'bg-red-500',     label: 'Cancelado' },
+  pending:   { bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200',   dot: 'bg-amber-500',   label: 'Pendiente' },
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const c = PATIENT_STATUS[status] ?? PATIENT_STATUS.inactive;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${c.bg} ${c.text} ${c.border}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+      {c.label}
+    </span>
+  );
+};
+
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{label}</p>
+    {children}
+  </div>
+);
+
+const inputCls = (editing: boolean) =>
+  `w-full px-3.5 py-2.5 text-sm border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] ${
+    editing ? 'border-gray-200 bg-white' : 'border-transparent bg-gray-50 text-gray-700 cursor-default'
+  }`;
+
+// ─── Component ────────────────────────────────────────────────────
 export function PatientProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'general' | 'medical' | 'appointments' | 'treatments' | 'payments' | 'documents'>('general');
+  type TabId = 'general' | 'medical' | 'appointments' | 'treatments' | 'payments' | 'documents';
+  const [activeTab, setActiveTab] = useState<TabId>('general');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Mock data - En producción vendría de la API
   const [patient, setPatient] = useState<Patient>({
-    id: 1,
-    name: 'Ana García Martínez',
-    age: 32,
-    phone: '+34 612 345 678',
-    email: 'ana.garcia@email.com',
-    address: 'Calle Mayor 123, 28013 Madrid',
-    birthDate: '1994-03-15',
-    dni: '12345678A',
-    insurance: 'Sanitas',
-    policyNumber: 'SAN-2024-12345',
+    id: 1, name: 'Ana García Martínez', age: 32,
+    phone: '+593 98 765 4321', email: 'ana.garcia@email.com',
+    address: 'Av. Amazonas N24-03, Quito', birthDate: '1994-03-15',
+    cedula: '1712345678', insurance: 'Salud S.A.',
+    policyNumber: 'SSA-2024-12345',
     emergencyContact: 'Carlos García (Hermano)',
-    emergencyPhone: '+34 600 123 456',
+    emergencyPhone: '+593 98 123 4567',
     allergies: 'Penicilina, Látex',
     medicalConditions: 'Hipertensión controlada',
     medications: 'Enalapril 10mg (1 vez al día)',
-    bloodType: 'A+',
-    status: 'active',
+    bloodType: 'A+', status: 'active',
     registrationDate: '2023-01-15',
     lastVisit: new Date(2026, 1, 20),
     nextAppointment: new Date(2026, 2, 15),
-    balance: 350
+    balance: 350,
   });
 
   const appointments: Appointment[] = [
-    {
-      id: 1,
-      date: new Date(2026, 2, 15),
-      time: '10:00',
-      treatment: 'Revisión y limpieza',
-      doctor: 'Dr. Roberto Sánchez',
-      status: 'scheduled',
-    },
-    {
-      id: 2,
-      date: new Date(2026, 1, 20),
-      time: '15:30',
-      treatment: 'Endodoncia molar 16',
-      doctor: 'Dr. Roberto Sánchez',
-      status: 'completed',
-      notes: 'Tratamiento completado satisfactoriamente'
-    },
-    {
-      id: 3,
-      date: new Date(2026, 0, 10),
-      time: '11:00',
-      treatment: 'Ortodoncia - Ajuste',
-      doctor: 'Dra. Carmen Torres',
-      status: 'completed'
-    },
+    { id: 1, date: new Date(2026, 2, 15), time: '10:00', treatment: 'Revisión y limpieza', doctor: 'Dr. Roberto Sánchez', status: 'scheduled' },
+    { id: 2, date: new Date(2026, 1, 20), time: '15:30', treatment: 'Endodoncia molar 16', doctor: 'Dr. Roberto Sánchez', status: 'completed', notes: 'Tratamiento completado satisfactoriamente' },
+    { id: 3, date: new Date(2026, 0, 10), time: '11:00', treatment: 'Ortodoncia – Ajuste', doctor: 'Dra. Carmen Torres', status: 'completed' },
   ];
 
   const treatments: Treatment[] = [
-    {
-      id: 1,
-      date: '2026-02-20',
-      tooth: '16',
-      treatment: 'Endodoncia',
-      doctor: 'Dr. Roberto Sánchez',
-      cost: 450,
-      paid: 450,
-      status: 'completed'
-    },
-    {
-      id: 2,
-      date: '2026-01-10',
-      tooth: '26',
-      treatment: 'Restauración composite',
-      doctor: 'Dr. Roberto Sánchez',
-      cost: 120,
-      paid: 70,
-      status: 'pending'
-    },
-    {
-      id: 3,
-      date: '2025-12-05',
-      tooth: '36',
-      treatment: 'Limpieza dental',
-      doctor: 'Dra. Carmen Torres',
-      cost: 60,
-      paid: 60,
-      status: 'completed'
-    },
+    { id: 1, date: '2026-02-20', tooth: '16', treatment: 'Endodoncia', doctor: 'Dr. Roberto Sánchez', cost: 450, paid: 450, status: 'completed' },
+    { id: 2, date: '2026-01-10', tooth: '26', treatment: 'Restauración composite', doctor: 'Dr. Roberto Sánchez', cost: 120, paid: 70, status: 'pending' },
+    { id: 3, date: '2025-12-05', tooth: '36', treatment: 'Limpieza dental', doctor: 'Dra. Carmen Torres', cost: 60, paid: 60, status: 'completed' },
   ];
 
   const payments = [
-    { id: 1, date: '2026-02-20', amount: 450, method: 'Tarjeta', concept: 'Endodoncia molar 16', invoice: 'F-2026-023' },
-    { id: 2, date: '2026-01-15', amount: 70, method: 'Efectivo', concept: 'Pago parcial restauración', invoice: 'F-2026-012' },
-    { id: 3, date: '2025-12-05', amount: 60, method: 'Transferencia', concept: 'Limpieza dental', invoice: 'F-2025-089' },
+    { id: 1, date: '2026-02-20', amount: 450, method: 'Tarjeta',       concept: 'Endodoncia molar 16',        invoice: 'F-2026-023' },
+    { id: 2, date: '2026-01-15', amount: 70,  method: 'Efectivo',      concept: 'Pago parcial restauración',  invoice: 'F-2026-012' },
+    { id: 3, date: '2025-12-05', amount: 60,  method: 'Transferencia', concept: 'Limpieza dental',            invoice: 'F-2025-089' },
   ];
 
   const documents = [
-    { id: 1, name: 'Consentimiento informado - Endodoncia.pdf', date: '2026-02-20', type: 'Consentimiento', size: '245 KB' },
-    { id: 2, name: 'Radiografía periapical 16.jpg', date: '2026-02-18', type: 'Radiografía', size: '1.2 MB' },
-    { id: 3, name: 'Presupuesto tratamiento completo.pdf', date: '2026-01-05', type: 'Presupuesto', size: '180 KB' },
-    { id: 4, name: 'Historia clínica inicial.pdf', date: '2023-01-15', type: 'Historia', size: '320 KB' },
+    { id: 1, name: 'Consentimiento informado – Endodoncia.pdf', date: '2026-02-20', type: 'Consentimiento', size: '245 KB' },
+    { id: 2, name: 'Radiografía periapical 16.jpg',              date: '2026-02-18', type: 'Radiografía',    size: '1.2 MB'  },
+    { id: 3, name: 'Presupuesto tratamiento completo.pdf',       date: '2026-01-05', type: 'Presupuesto',    size: '180 KB'  },
+    { id: 4, name: 'Historia clínica inicial.pdf',               date: '2023-01-15', type: 'Historia',       size: '320 KB'  },
   ];
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast.success('Información del paciente actualizada');
-  };
+  const handleSave = () => { setIsEditing(false); toast.success('Información del paciente actualizada'); };
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-gray-100 text-gray-800',
-      overdue: 'bg-red-100 text-red-800',
-      completed: 'bg-green-100 text-green-800',
-      scheduled: 'bg-blue-100 text-blue-800',
-      cancelled: 'bg-red-100 text-red-800',
-      pending: 'bg-yellow-100 text-yellow-800'
-    };
-    const labels = {
-      active: 'Activo',
-      inactive: 'Inactivo',
-      overdue: 'Mora',
-      completed: 'Completado',
-      scheduled: 'Agendado',
-      cancelled: 'Cancelado',
-      pending: 'Pendiente'
-    };
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status as keyof typeof styles]}`}>
-        {labels[status as keyof typeof labels]}
-      </span>
-    );
-  };
-
-  const tabs = [
-    { id: 'general', label: 'Información General', icon: User },
-    { id: 'medical', label: 'Historia Médica', icon: Stethoscope },
-    { id: 'appointments', label: 'Citas', icon: Calendar },
-    { id: 'treatments', label: 'Tratamientos', icon: Activity },
-    { id: 'payments', label: 'Pagos', icon: CreditCard },
-    { id: 'documents', label: 'Documentos', icon: FileText },
+  const tabs: { id: TabId; label: string; shortLabel: string; icon: React.ElementType }[] = [
+    { id: 'general',      label: 'Información General', shortLabel: 'General',      icon: User        },
+    { id: 'medical',      label: 'Historia Médica',     shortLabel: 'Médica',       icon: Stethoscope },
+    { id: 'appointments', label: 'Citas',               shortLabel: 'Citas',        icon: Calendar    },
+    { id: 'treatments',   label: 'Tratamientos',        shortLabel: 'Tratamientos', icon: Activity    },
+    { id: 'payments',     label: 'Pagos',               shortLabel: 'Pagos',        icon: CreditCard  },
+    { id: 'documents',    label: 'Documentos',          shortLabel: 'Docs',         icon: FileText    },
   ];
+
+  const totalPaid = payments.reduce((a, p) => a + p.amount, 0);
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/patients')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-gray-900">{patient.name}</h1>
-              {getStatusBadge(patient.status)}
+    <div className="min-h-screen bg-gray-50/60">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4">
+
+        {/* ── Header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <button onClick={() => navigate('/patients')} className="p-2 hover:bg-gray-100 rounded-xl transition-colors mt-0.5 shrink-0">
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">{patient.name}</h1>
+                <StatusBadge status={patient.status} />
+              </div>
+              <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
+                {patient.age} años · Cédula: {patient.cedula} · Paciente desde {format(new Date(patient.registrationDate), 'd MMM yyyy', { locale: es })}
+              </p>
             </div>
-            <p className="text-gray-500 mt-1">
-              {patient.age} años • DNI: {patient.dni} • Paciente desde {format(new Date(patient.registrationDate), 'd MMM yyyy', { locale: es })}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={() => navigate(`/patients/${id}/odontogram`)}
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">Odontograma</span>
+            </button>
+            {isEditing ? (
+              <>
+                <button onClick={() => setIsEditing(false)}
+                  className="inline-flex items-center gap-2 px-3.5 py-2.5 border border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                  <X className="w-4 h-4" /> Cancelar
+                </button>
+                <button onClick={handleSave}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0066CC] text-white text-sm font-semibold rounded-xl hover:bg-[#0052A3] active:scale-95 transition-all shadow-sm shadow-blue-200">
+                  <Save className="w-4 h-4" /> Guardar
+                </button>
+              </>
+            ) : (
+              <button onClick={() => setIsEditing(true)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0066CC] text-white text-sm font-semibold rounded-xl hover:bg-[#0052A3] active:scale-95 transition-all shadow-sm shadow-blue-200">
+                <Edit className="w-4 h-4" /> Editar
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Quick Stats ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
+              <Calendar style={{ width: 15, height: 15 }} className="text-[#0066CC]" />
+            </div>
+            <p className="text-xs text-gray-400">Última Visita</p>
+            <p className="text-sm font-bold text-gray-900 mt-0.5">{format(patient.lastVisit, 'd MMM yyyy', { locale: es })}</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center mb-2">
+              <Clock style={{ width: 15, height: 15 }} className="text-emerald-600" />
+            </div>
+            <p className="text-xs text-gray-400">Próxima Cita</p>
+            <p className="text-sm font-bold text-gray-900 mt-0.5">
+              {patient.nextAppointment ? format(patient.nextAppointment, 'd MMM yyyy', { locale: es }) : 'Sin agendar'}
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <div className="w-8 h-8 bg-purple-50 rounded-xl flex items-center justify-center mb-2">
+              <Activity style={{ width: 15, height: 15 }} className="text-purple-600" />
+            </div>
+            <p className="text-xs text-gray-400">Tratamientos</p>
+            <p className="text-sm font-bold text-gray-900 mt-0.5">{treatments.length} realizados</p>
+          </div>
+          <div className={`bg-white rounded-2xl border shadow-sm p-4 ${patient.balance > 0 ? 'border-red-100' : 'border-gray-100'}`}>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${patient.balance > 0 ? 'bg-red-50' : 'bg-emerald-50'}`}>
+              <DollarSign style={{ width: 15, height: 15 }} className={patient.balance > 0 ? 'text-red-500' : 'text-emerald-600'} />
+            </div>
+            <p className="text-xs text-gray-400">Saldo Pendiente</p>
+            <p className={`text-sm font-bold mt-0.5 ${patient.balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+              {patient.balance > 0 ? `$${patient.balance.toFixed(2)}` : 'Al día ✓'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(`/patients/${id}/odontogram`)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Activity className="w-4 h-4" />
-            Ver Odontograma
-          </button>
-          {isEditing ? (
-            <>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <X className="w-4 h-4" />
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors"
-              >
-                <Save className="w-4 h-4" />
-                Guardar
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors"
-            >
-              <Edit className="w-4 h-4" />
-              Editar
-            </button>
-          )}
-        </div>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Calendar className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Última Visita</p>
-              <p className="font-semibold text-gray-900">
-                {format(patient.lastVisit, 'd MMM yyyy', { locale: es })}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* ── Tabs Card ── */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-        <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Clock className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Próxima Cita</p>
-              <p className="font-semibold text-gray-900">
-                {patient.nextAppointment
-                  ? format(patient.nextAppointment, 'd MMM yyyy', { locale: es })
-                  : 'Sin agendar'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Activity className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Tratamientos</p>
-              <p className="font-semibold text-gray-900">{treatments.length} realizados</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-lg ${patient.balance > 0 ? 'bg-red-100' : 'bg-green-100'}`}>
-              <DollarSign className={`w-5 h-5 ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Saldo Pendiente</p>
-              <p className={`font-semibold ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                €{patient.balance.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="border-b border-gray-200">
-          <div className="flex overflow-x-auto">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'text-[#0066CC] border-b-2 border-[#0066CC]'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="p-6">
-          {/* General Information Tab */}
-          {activeTab === 'general' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre completo
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      value={patient.name}
-                      onChange={(e) => setPatient({ ...patient, name: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha de nacimiento
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="date"
-                      value={patient.birthDate}
-                      onChange={(e) => setPatient({ ...patient, birthDate: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    DNI/NIE
-                  </label>
-                  <input
-                    type="text"
-                    value={patient.dni}
-                    onChange={(e) => setPatient({ ...patient, dni: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={patient.phone}
-                      onChange={(e) => setPatient({ ...patient, phone: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={patient.email}
-                      onChange={(e) => setPatient({ ...patient, email: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dirección
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      value={patient.address}
-                      onChange={(e) => setPatient({ ...patient, address: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Seguro médico
-                  </label>
-                  <input
-                    type="text"
-                    value={patient.insurance}
-                    onChange={(e) => setPatient({ ...patient, insurance: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Número de póliza
-                  </label>
-                  <input
-                    type="text"
-                    value={patient.policyNumber}
-                    onChange={(e) => setPatient({ ...patient, policyNumber: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contacto de emergencia
-                  </label>
-                  <input
-                    type="text"
-                    value={patient.emergencyContact}
-                    onChange={(e) => setPatient({ ...patient, emergencyContact: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono de emergencia
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={patient.emergencyPhone}
-                      onChange={(e) => setPatient({ ...patient, emergencyPhone: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Medical History Tab */}
-          {activeTab === 'medical' && (
-            <div className="space-y-6">
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-yellow-900">Información Médica Sensible</h4>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Asegúrate de mantener esta información actualizada y confidencial.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Alergias
-                  </label>
-                  <textarea
-                    value={patient.allergies}
-                    onChange={(e) => setPatient({ ...patient, allergies: e.target.value })}
-                    disabled={!isEditing}
-                    rows={3}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50 resize-none"
-                    placeholder="Ej: Penicilina, Látex, etc."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Condiciones médicas
-                  </label>
-                  <textarea
-                    value={patient.medicalConditions}
-                    onChange={(e) => setPatient({ ...patient, medicalConditions: e.target.value })}
-                    disabled={!isEditing}
-                    rows={3}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50 resize-none"
-                    placeholder="Ej: Diabetes, Hipertensión, etc."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Medicación actual
-                  </label>
-                  <textarea
-                    value={patient.medications}
-                    onChange={(e) => setPatient({ ...patient, medications: e.target.value })}
-                    disabled={!isEditing}
-                    rows={3}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50 resize-none"
-                    placeholder="Ej: Aspirina 100mg (1 vez al día)"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Grupo sanguíneo
-                  </label>
-                  <select
-                    value={patient.bloodType}
-                    onChange={(e) => setPatient({ ...patient, bloodType: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent disabled:bg-gray-50"
+          {/* Tab bar */}
+          <div className="border-b border-gray-100 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex min-w-max">
+              {tabs.map(tab => {
+                const Icon = tab.icon;
+                const active = activeTab === tab.id;
+                return (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 sm:px-5 py-3.5 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+                      active ? 'text-[#0066CC] border-[#0066CC]' : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-200'
+                    }`}
                   >
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                  </select>
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="sm:hidden">{tab.shortLabel}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Tab content */}
+          <div className="p-4 sm:p-6">
+
+            {/* ── GENERAL ── */}
+            {activeTab === 'general' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { label: 'Nombre completo', key: 'name', type: 'text', icon: User },
+                    { label: 'Fecha de nacimiento', key: 'birthDate', type: 'date', icon: Calendar },
+                    { label: 'Cédula de identidad', key: 'cedula', type: 'text', icon: null },
+                    { label: 'Teléfono', key: 'phone', type: 'tel', icon: Phone },
+                    { label: 'Email', key: 'email', type: 'email', icon: Mail },
+                    { label: 'Dirección', key: 'address', type: 'text', icon: MapPin },
+                    { label: 'Seguro médico', key: 'insurance', type: 'text', icon: Shield },
+                    { label: 'Número de póliza', key: 'policyNumber', type: 'text', icon: null },
+                    { label: 'Contacto de emergencia', key: 'emergencyContact', type: 'text', icon: User },
+                    { label: 'Teléfono de emergencia', key: 'emergencyPhone', type: 'tel', icon: Phone },
+                  ].map(({ label, key, type, icon: Icon }) => (
+                    <Field key={key} label={label}>
+                      <div className="relative">
+                        {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />}
+                        <input type={type} value={(patient as any)[key]}
+                          onChange={e => setPatient({ ...patient, [key]: e.target.value })}
+                          disabled={!isEditing}
+                          className={`${inputCls(isEditing)} ${Icon ? 'pl-9' : ''}`}
+                        />
+                      </div>
+                    </Field>
+                  ))}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Appointments Tab */}
-          {activeTab === 'appointments' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900">Historial de Citas</h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors">
-                  <Calendar className="w-4 h-4" />
-                  Nueva Cita
-                </button>
-              </div>
-
-              {appointments.map((appointment) => (
-                <div key={appointment.id} className="p-4 border border-gray-200 rounded-lg hover:border-[#0066CC] transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Calendar className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">{appointment.treatment}</h4>
-                        <p className="text-sm text-gray-600">
-                          {format(appointment.date, "d 'de' MMMM yyyy", { locale: es })} • {appointment.time}
-                        </p>
-                      </div>
-                    </div>
-                    {getStatusBadge(appointment.status)}
-                  </div>
-                  <div className="ml-11">
-                    <p className="text-sm text-gray-600">Doctor: {appointment.doctor}</p>
-                    {appointment.notes && (
-                      <p className="text-sm text-gray-500 mt-1 italic">{appointment.notes}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Treatments Tab */}
-          {activeTab === 'treatments' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900">Historial de Tratamientos</h3>
-                <button
-                  onClick={() => navigate(`/patients/${id}/odontogram`)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors"
-                >
-                  <Activity className="w-4 h-4" />
-                  Ver Odontograma
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Fecha</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Diente</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Tratamiento</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Doctor</th>
-                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">Costo</th>
-                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">Pagado</th>
-                      <th className="px-4 py-3 text-center text-sm font-medium text-gray-700">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {treatments.map((treatment) => (
-                      <tr key={treatment.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {format(new Date(treatment.date), 'd MMM yyyy', { locale: es })}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded font-medium text-sm">
-                            {treatment.tooth}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{treatment.treatment}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{treatment.doctor}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 text-right">€{treatment.cost.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 text-right">€{treatment.paid.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-center">
-                          {getStatusBadge(treatment.status)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Payments Tab */}
-          {activeTab === 'payments' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900">Historial de Pagos</h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors">
-                  <CreditCard className="w-4 h-4" />
-                  Registrar Pago
-                </button>
-              </div>
-
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center justify-between">
+            {/* ── MEDICAL ── */}
+            {activeTab === 'medical' && (
+              <div className="space-y-5">
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                  <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-blue-700">Saldo Pendiente</p>
-                    <p className="text-2xl font-bold text-blue-900">€{patient.balance.toFixed(2)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-blue-700">Total Pagado</p>
-                    <p className="text-xl font-semibold text-blue-900">
-                      €{payments.reduce((acc, p) => acc + p.amount, 0).toFixed(2)}
-                    </p>
+                    <p className="text-sm font-semibold text-amber-800">Información Médica Sensible</p>
+                    <p className="text-xs text-amber-600 mt-0.5">Mantén esta información actualizada y confidencial.</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Fecha</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Concepto</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Método</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Factura</th>
-                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">Monto</th>
-                      <th className="px-4 py-3 text-center text-sm font-medium text-gray-700">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {payments.map((payment) => (
-                      <tr key={payment.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {format(new Date(payment.date), 'd MMM yyyy', { locale: es })}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{payment.concept}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{payment.method}</td>
-                        <td className="px-4 py-3 text-sm text-blue-600 font-mono">{payment.invoice}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 font-semibold text-right">
-                          €{payment.amount.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button className="p-2 text-gray-600 hover:text-[#0066CC] transition-colors">
-                            <Download className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Grupo sanguíneo">
+                    <select value={patient.bloodType} onChange={e => setPatient({ ...patient, bloodType: e.target.value })}
+                      disabled={!isEditing} className={inputCls(isEditing)}>
+                      {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Seguro / póliza">
+                    <input type="text" value={patient.policyNumber} onChange={e => setPatient({ ...patient, policyNumber: e.target.value })}
+                      disabled={!isEditing} className={inputCls(isEditing)} />
+                  </Field>
+                </div>
 
-          {/* Documents Tab */}
-          {activeTab === 'documents' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900">Documentos del Paciente</h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052a3] transition-colors">
-                  <Plus className="w-4 h-4" />
-                  Subir Documento
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {documents.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-[#0066CC] transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <FileText className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">{doc.name}</h4>
-                        <p className="text-sm text-gray-600">
-                          {doc.type} • {doc.size} • {format(new Date(doc.date), 'd MMM yyyy', { locale: es })}
-                        </p>
-                      </div>
+                {[
+                  { label: 'Alergias', key: 'allergies', placeholder: 'Ej: Penicilina, Látex…', icon: AlertCircle, iconColor: 'text-red-400' },
+                  { label: 'Condiciones médicas', key: 'medicalConditions', placeholder: 'Ej: Diabetes, Hipertensión…', icon: Heart, iconColor: 'text-pink-400' },
+                  { label: 'Medicación actual', key: 'medications', placeholder: 'Ej: Aspirina 100mg (1 vez al día)', icon: Stethoscope, iconColor: 'text-blue-400' },
+                ].map(({ label, key, placeholder, icon: Icon, iconColor }) => (
+                  <div key={key} className="bg-gray-50 rounded-2xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon className={`w-4 h-4 ${iconColor}`} />
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button className="p-2 text-gray-600 hover:text-[#0066CC] transition-colors">
-                        <Download className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-gray-600 hover:text-[#0066CC] transition-colors">
-                        <Printer className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <textarea rows={3} value={(patient as any)[key]}
+                      onChange={e => setPatient({ ...patient, [key]: e.target.value })}
+                      disabled={!isEditing} placeholder={placeholder}
+                      className={`w-full px-3.5 py-2.5 text-sm border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] resize-none ${
+                        isEditing ? 'border-gray-200 bg-white' : 'border-transparent bg-white text-gray-700 cursor-default'
+                      }`}
+                    />
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+
+            {/* ── APPOINTMENTS ── */}
+            {activeTab === 'appointments' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-gray-800">Historial de Citas</p>
+                  <button className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#0066CC] text-white text-xs font-semibold rounded-xl hover:bg-[#0052A3] transition-colors">
+                    <Plus className="w-3.5 h-3.5" /> Nueva Cita
+                  </button>
+                </div>
+
+                {appointments.map(apt => (
+                  <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-gray-100 hover:border-blue-100 hover:bg-blue-50/30 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        apt.status === 'scheduled' ? 'bg-blue-50' : apt.status === 'completed' ? 'bg-emerald-50' : 'bg-red-50'
+                      }`}>
+                        <Calendar style={{ width: 16, height: 16 }} className={
+                          apt.status === 'scheduled' ? 'text-blue-600' : apt.status === 'completed' ? 'text-emerald-600' : 'text-red-500'
+                        } />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{apt.treatment}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {format(apt.date, "d 'de' MMMM yyyy", { locale: es })} · {apt.time} · {apt.doctor}
+                        </p>
+                        {apt.notes && <p className="text-xs text-gray-400 mt-0.5 italic">"{apt.notes}"</p>}
+                      </div>
+                    </div>
+                    <StatusBadge status={apt.status} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── TREATMENTS ── */}
+            {activeTab === 'treatments' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-gray-800">Historial de Tratamientos</p>
+                  <button onClick={() => navigate(`/patients/${id}/odontogram`)}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#0066CC] text-white text-xs font-semibold rounded-xl hover:bg-[#0052A3] transition-colors">
+                    <Activity className="w-3.5 h-3.5" /> Ver Odontograma
+                  </button>
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        {['Fecha', 'Diente', 'Tratamiento', 'Doctor', 'Costo', 'Pagado', 'Estado'].map((h, i) => (
+                          <th key={h} className={`pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider ${i >= 4 ? 'text-right' : 'text-left'} ${i === 6 ? 'text-center' : ''} pr-4`}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {treatments.map(t => (
+                        <tr key={t.id} className="hover:bg-gray-50/60 transition-colors">
+                          <td className="py-3.5 pr-4 text-sm text-gray-500">{format(new Date(t.date), 'd MMM yyyy', { locale: es })}</td>
+                          <td className="py-3.5 pr-4">
+                            <span className="w-8 h-8 inline-flex items-center justify-center bg-[#0066CC] text-white rounded-lg text-xs font-bold">{t.tooth}</span>
+                          </td>
+                          <td className="py-3.5 pr-4 text-sm font-semibold text-gray-900">{t.treatment}</td>
+                          <td className="py-3.5 pr-4 text-sm text-gray-500">{t.doctor}</td>
+                          <td className="py-3.5 pr-4 text-sm text-gray-900 text-right">${t.cost.toFixed(2)}</td>
+                          <td className="py-3.5 pr-4 text-sm text-gray-900 text-right">${t.paid.toFixed(2)}</td>
+                          <td className="py-3.5 text-center"><StatusBadge status={t.status} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="sm:hidden space-y-3">
+                  {treatments.map(t => (
+                    <div key={t.id} className="p-4 rounded-2xl border border-gray-100">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-8 h-8 inline-flex items-center justify-center bg-[#0066CC] text-white rounded-lg text-xs font-bold shrink-0">{t.tooth}</span>
+                          <p className="text-sm font-semibold text-gray-900">{t.treatment}</p>
+                        </div>
+                        <StatusBadge status={t.status} />
+                      </div>
+                      <p className="text-xs text-gray-400">{t.doctor} · {format(new Date(t.date), 'd MMM yyyy', { locale: es })}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs">
+                        <span className="text-gray-500">Costo: <strong className="text-gray-800">${t.cost.toFixed(2)}</strong></span>
+                        <span className="text-gray-500">Pagado: <strong className="text-emerald-600">${t.paid.toFixed(2)}</strong></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── PAYMENTS ── */}
+            {activeTab === 'payments' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-gray-800">Historial de Pagos</p>
+                  <button className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#0066CC] text-white text-xs font-semibold rounded-xl hover:bg-[#0052A3] transition-colors">
+                    <CreditCard className="w-3.5 h-3.5" /> Registrar Pago
+                  </button>
+                </div>
+
+                {/* Balance summary */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
+                    <p className="text-xs text-blue-600 font-semibold">Saldo Pendiente</p>
+                    <p className="text-2xl font-bold text-blue-900 mt-1">${patient.balance.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100">
+                    <p className="text-xs text-emerald-600 font-semibold">Total Pagado</p>
+                    <p className="text-2xl font-bold text-emerald-900 mt-1">${totalPaid.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        {['Fecha', 'Concepto', 'Método', 'Factura', 'Monto', ''].map((h, i) => (
+                          <th key={i} className={`pb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider ${i === 4 ? 'text-right' : 'text-left'} pr-4`}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {payments.map(p => (
+                        <tr key={p.id} className="hover:bg-gray-50/60 transition-colors">
+                          <td className="py-3.5 pr-4 text-sm text-gray-500">{format(new Date(p.date), 'd MMM yyyy', { locale: es })}</td>
+                          <td className="py-3.5 pr-4 text-sm font-medium text-gray-900">{p.concept}</td>
+                          <td className="py-3.5 pr-4 text-sm text-gray-500">{p.method}</td>
+                          <td className="py-3.5 pr-4 text-sm font-mono text-[#0066CC]">{p.invoice}</td>
+                          <td className="py-3.5 pr-4 text-sm font-bold text-gray-900 text-right">${p.amount.toFixed(2)}</td>
+                          <td className="py-3.5 text-right">
+                            <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-[#0066CC]">
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="sm:hidden space-y-3">
+                  {payments.map(p => (
+                    <div key={p.id} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{p.concept}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{format(new Date(p.date), 'd MMM yyyy', { locale: es })} · {p.method}</p>
+                        <p className="text-xs font-mono text-[#0066CC] mt-0.5">{p.invoice}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <p className="text-sm font-bold text-gray-900">${p.amount.toFixed(2)}</p>
+                        <button className="p-1.5 bg-gray-100 rounded-lg text-gray-400 hover:text-[#0066CC] transition-colors">
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── DOCUMENTS ── */}
+            {activeTab === 'documents' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-gray-800">Documentos del Paciente</p>
+                  <button className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#0066CC] text-white text-xs font-semibold rounded-xl hover:bg-[#0052A3] transition-colors">
+                    <Plus className="w-3.5 h-3.5" /> Subir Documento
+                  </button>
+                </div>
+
+                {documents.map(doc => {
+                  const typeColors: Record<string, string> = {
+                    Consentimiento: 'bg-purple-50 text-purple-600', Radiografía: 'bg-blue-50 text-blue-600',
+                    Presupuesto: 'bg-amber-50 text-amber-600', Historia: 'bg-emerald-50 text-emerald-600',
+                  };
+                  return (
+                    <div key={doc.id} className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 hover:border-blue-100 hover:bg-blue-50/20 transition-colors group">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${typeColors[doc.type] ?? 'bg-gray-50 text-gray-500'}`}>
+                        <FileText style={{ width: 18, height: 18 }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{doc.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{doc.type} · {doc.size} · {format(new Date(doc.date), 'd MMM yyyy', { locale: es })}</p>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                        <button className="p-1.5 hover:bg-blue-100 rounded-lg text-gray-400 hover:text-[#0066CC] transition-colors">
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
+                        <button className="p-1.5 hover:bg-blue-100 rounded-lg text-gray-400 hover:text-[#0066CC] transition-colors">
+                          <Printer className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
     </div>

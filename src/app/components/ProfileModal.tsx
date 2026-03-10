@@ -183,7 +183,7 @@ export function ProfileModal({ isOpen, onClose, currentProfile }: ProfileModalPr
                       onChange={handleChange}
                       required
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
-                      placeholder="+34 600 000 000"
+                      placeholder="+593 98 000 0000"
                     />
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export function ProfileModal({ isOpen, onClose, currentProfile }: ProfileModalPr
                       value={formData.address}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
-                      placeholder="Calle Mayor 123, 28013 Madrid"
+                      placeholder="Av. Amazonas N24-03, Quito"
                     />
                   </div>
                 </div>

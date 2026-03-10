@@ -34,7 +34,7 @@ export function Layout({ children }: LayoutProps) {
   const currentProfile = {
     name: user?.name || 'Dr. Roberto Sánchez',
     email: user?.email || 'roberto.sanchez@dentalcarepro.com',
-    phone: '+34 91 123 45 67',
+    phone: '+593 98 765 4321',
     specialty: user?.specialty || 'Odontología General y Estética',
     licenseNumber: user?.licenseNumber || '28/28/12345',
     address: 'Calle Mayor 123, 28013 Madrid, España',
