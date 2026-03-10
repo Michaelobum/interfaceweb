@@ -405,7 +405,9 @@ export function Patients() {
 
       {/* Patients Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+
+        {/* TABLA — visible solo en md+ */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -415,10 +417,10 @@ export function Patients() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contacto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Última Visita
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Próxima Cita
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -434,8 +436,8 @@ export function Patients() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredPatients.map((patient) => (
-                <tr 
-                  key={patient.id} 
+                <tr
+                  key={patient.id}
                   className="hover:bg-gray-50 cursor-pointer transition-colors"
                   onClick={() => navigate(`/patients/${patient.id}`)}
                 >
@@ -454,11 +456,11 @@ export function Patients() {
                     <div className="text-sm text-gray-900">{patient.phone}</div>
                     <div className="text-sm text-gray-500">{patient.email}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-900 hidden lg:table-cell">
                     {format(patient.lastVisit, 'dd/MM/yyyy', { locale: es })}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {patient.nextAppointment 
+                  <td className="px-6 py-4 text-sm text-gray-900 hidden lg:table-cell">
+                    {patient.nextAppointment
                       ? format(patient.nextAppointment, 'dd/MM/yyyy', { locale: es })
                       : '-'
                     }
@@ -475,19 +477,15 @@ export function Patients() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
+                      <button
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
+                        onClick={(e) => { e.stopPropagation(); }}
                       >
                         <Edit className="w-4 h-4 text-gray-400" />
                       </button>
-                      <button 
+                      <button
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
+                        onClick={(e) => { e.stopPropagation(); }}
                       >
                         <Trash2 className="w-4 h-4 text-gray-400" />
                       </button>
@@ -498,6 +496,69 @@ export function Patients() {
             </tbody>
           </table>
         </div>
+
+        {/* CARDS — visible solo en móvil */}
+        <div className="md:hidden divide-y divide-gray-200">
+          {filteredPatients.map((patient) => (
+            <div
+              key={patient.id}
+              className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => navigate(`/patients/${patient.id}`)}
+            >
+              {/* Fila superior: avatar + nombre + badge */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 shrink-0 bg-[#0066CC] rounded-full flex items-center justify-center text-white font-medium">
+                    {patient.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-900 truncate">{patient.name}</div>
+                    <div className="text-sm text-gray-500">{patient.age} años</div>
+                  </div>
+                </div>
+                {getStatusBadge(patient.status)}
+              </div>
+
+              {/* Fila inferior: contacto + fechas + saldo */}
+              <div className="mt-3 pl-13 space-y-1 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+                  <span>{patient.phone}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+                  <span className="truncate">{patient.email}</span>
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+                    <span>Última: {format(patient.lastVisit, 'dd/MM/yyyy', { locale: es })}</span>
+                  </div>
+                  <span className={`font-semibold ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    ${patient.balance}
+                  </span>
+                </div>
+              </div>
+
+              {/* Acciones */}
+              <div className="mt-3 flex justify-end gap-2">
+                <button
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  onClick={(e) => { e.stopPropagation(); }}
+                >
+                  <Edit className="w-4 h-4 text-gray-400" />
+                </button>
+                <button
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  onClick={(e) => { e.stopPropagation(); }}
+                >
+                  <Trash2 className="w-4 h-4 text-gray-400" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );

@@ -348,7 +348,9 @@ export function Billing() {
 
       {/* Invoices Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+
+        {/* TABLA — visible solo en md+ */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -358,10 +360,10 @@ export function Billing() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Paciente
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Fecha
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Vencimiento
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -384,10 +386,10 @@ export function Billing() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-gray-900">{invoice.patient}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell">
                     {format(invoice.date, 'dd/MM/yyyy')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell">
                     {format(invoice.dueDate, 'dd/MM/yyyy')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -399,10 +401,7 @@ export function Billing() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => {
-                          setSelectedInvoice(invoice);
-                          setShowModal(true);
-                        }}
+                        onClick={() => { setSelectedInvoice(invoice); setShowModal(true); }}
                         className="p-2 text-gray-600 hover:text-[#0066CC] hover:bg-gray-100 rounded-lg transition-colors"
                         title="Ver detalles"
                       >
@@ -428,6 +427,57 @@ export function Billing() {
             </tbody>
           </table>
         </div>
+
+        {/* CARDS — visible solo en móvil */}
+        <div className="md:hidden divide-y divide-gray-200">
+          {filteredInvoices.map((invoice) => (
+            <div key={invoice.id} className="p-4 hover:bg-gray-50 transition-colors">
+              {/* Fila superior: número + estado */}
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <span className="font-semibold text-gray-900">{invoice.invoiceNumber}</span>
+                  <p className="text-sm text-gray-600 mt-0.5 truncate">{invoice.patient}</p>
+                </div>
+                {getStatusBadge(invoice.status)}
+              </div>
+
+              {/* Fechas + total */}
+              <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                    <span>Emisión: {format(invoice.date, 'dd/MM/yyyy')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-gray-400" />
+                    <span>Vence: {format(invoice.dueDate, 'dd/MM/yyyy')}</span>
+                  </div>
+                </div>
+                <span className="text-lg font-bold text-gray-900">${invoice.total.toFixed(2)}</span>
+              </div>
+
+              {/* Acciones */}
+              <div className="mt-3 flex justify-end gap-2">
+                <button
+                  onClick={() => { setSelectedInvoice(invoice); setShowModal(true); }}
+                  className="p-2 text-gray-600 hover:text-[#0066CC] hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDownloadPDF(invoice)}
+                  className="p-2 text-gray-600 hover:text-[#0066CC] hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+                <button className="p-2 text-gray-600 hover:text-[#0066CC] hover:bg-gray-100 rounded-lg transition-colors">
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
 
       {/* View Invoice Modal */}
