@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Phone, MapPin, Calendar, Award, Camera, Save } from 'lucide-react';
+import { X, User, Mail, Phone, MapPin, Calendar, Award, Camera, Save, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router';
 
 interface ProfileData {
   name: string;
@@ -24,6 +26,8 @@ export function ProfileModal({ isOpen, onClose, currentProfile }: ProfileModalPr
   const [formData, setFormData] = useState<ProfileData>(currentProfile);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(currentProfile.avatar);
   const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -53,6 +57,11 @@ export function ProfileModal({ isOpen, onClose, currentProfile }: ProfileModalPr
       toast.success('Perfil actualizado correctamente');
       onClose();
     }, 1500);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -291,6 +300,14 @@ export function ProfileModal({ isOpen, onClose, currentProfile }: ProfileModalPr
                   Guardar cambios
                 </>
               )}
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Cerrar sesión
             </button>
           </div>
         </form>

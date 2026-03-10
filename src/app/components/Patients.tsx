@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 interface Patient {
   id: number;
@@ -437,7 +437,7 @@ export function Patients() {
                 <tr 
                   key={patient.id} 
                   className="hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={() => setSelectedPatient(patient)}
+                  onClick={() => navigate(`/patients/${patient.id}`)}
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">

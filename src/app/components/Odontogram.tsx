@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Save, RotateCcw, Info } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router';
+import { toast } from 'sonner';
 
 interface ToothStatus {
   id: number;
@@ -19,6 +21,8 @@ const toothStatuses = [
 ];
 
 export function Odontogram() {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null);
   const [toothData, setToothData] = useState<Record<number, ToothStatus>>({});
   const [selectedStatus, setSelectedStatus] = useState('healthy');
@@ -48,7 +52,18 @@ export function Odontogram() {
           note: '',
         },
       });
+      toast.success(`Estado aplicado al diente #${selectedTooth}`);
     }
+  };
+
+  const handleSave = () => {
+    toast.success('Odontograma guardado correctamente');
+  };
+
+  const handleReset = () => {
+    setToothData({});
+    setSelectedTooth(null);
+    toast.info('Odontograma restablecido');
   };
 
   const getToothColor = (toothId: number) => {
@@ -69,16 +84,30 @@ export function Odontogram() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Odontograma</h1>
-          <p className="text-gray-500 mt-1">Ana García Martínez - Registro dental completo</p>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(`/patients/${id}`)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Odontograma</h1>
+            <p className="text-gray-500 mt-1">Ana García Martínez - Registro dental completo</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={handleReset}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <RotateCcw className="w-4 h-4" />
             Restablecer
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052A3] transition-colors">
+          <button 
+            onClick={handleSave}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#0052A3] transition-colors"
+          >
             <Save className="w-4 h-4" />
             Guardar Cambios
           </button>

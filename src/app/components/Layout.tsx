@@ -10,10 +10,14 @@ import {
   Search,
   ChevronDown,
   Menu,
-  X
+  X,
+  LogOut,
+  User
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ProfileModal } from './ProfileModal';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,18 +25,27 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const currentProfile = {
-    name: 'Dr. Roberto Sánchez',
-    email: 'roberto.sanchez@dentalcarepro.com',
+    name: user?.name || 'Dr. Roberto Sánchez',
+    email: user?.email || 'roberto.sanchez@dentalcarepro.com',
     phone: '+34 91 123 45 67',
-    specialty: 'Odontología General y Estética',
-    licenseNumber: '28/28/12345',
+    specialty: user?.specialty || 'Odontología General y Estética',
+    licenseNumber: user?.licenseNumber || '28/28/12345',
     address: 'Calle Mayor 123, 28013 Madrid, España',
     birthDate: '1985-06-15',
     bio: 'Odontólogo con más de 15 años de experiencia en odontología general y estética dental. Especializado en tratamientos de rehabilitación oral y diseño de sonrisa.',
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast.success('Sesión cerrada correctamente');
+    navigate('/login');
   };
 
   const menuItems = [
