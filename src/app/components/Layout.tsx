@@ -37,7 +37,7 @@ export function Layout({ children }: LayoutProps) {
     phone: '+593 98 765 4321',
     specialty: user?.specialty || 'Odontología General y Estética',
     licenseNumber: user?.licenseNumber || '28/28/12345',
-    address: 'Calle Mayor 123, 28013 Madrid, España',
+    address: 'Calle Ecuador 123, 28013 Madrid, España',
     birthDate: '1985-06-15',
     bio: 'Odontólogo con más de 15 años de experiencia en odontología general y estética dental. Especializado en tratamientos de rehabilitación oral y diseño de sonrisa.',
   };
