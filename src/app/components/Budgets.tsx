@@ -29,11 +29,11 @@ interface Budget {
 }
 
 const STATUS_CONFIG = {
-  pending:     { label: 'Pendiente',  bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200',   dot: 'bg-amber-400',   icon: Clock },
-  approved:    { label: 'Aprobado',   bg: 'bg-blue-50',    text: 'text-blue-700',    border: 'border-blue-200',    dot: 'bg-blue-500',    icon: CheckCircle2 },
-  in_progress: { label: 'En Proceso', bg: 'bg-purple-50',  text: 'text-purple-700',  border: 'border-purple-200',  dot: 'bg-purple-500',  icon: Clock },
-  completed:   { label: 'Finalizado', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500', icon: CheckCircle2 },
-  rejected:    { label: 'Rechazado',  bg: 'bg-red-50',     text: 'text-red-700',     border: 'border-red-200',     dot: 'bg-red-500',     icon: XCircle },
+  pending:     { label: 'Pendiente',  bg: 'bg-amber-50 dark:bg-amber-900/20',     text: 'text-amber-700 dark:text-amber-300',     border: 'border-amber-200 dark:border-amber-700/50',   dot: 'bg-amber-400',   icon: Clock },
+  approved:    { label: 'Aprobado',   bg: 'bg-blue-50 dark:bg-blue-900/30',       text: 'text-blue-700 dark:text-blue-300',       border: 'border-blue-200 dark:border-blue-700/50',     dot: 'bg-blue-500',    icon: CheckCircle2 },
+  in_progress: { label: 'En Proceso', bg: 'bg-purple-50 dark:bg-purple-900/20',   text: 'text-purple-700 dark:text-purple-300',   border: 'border-purple-200',                           dot: 'bg-purple-500',  icon: Clock },
+  completed:   { label: 'Finalizado', bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-700/50', dot: 'bg-emerald-500', icon: CheckCircle2 },
+  rejected:    { label: 'Rechazado',  bg: 'bg-red-50 dark:bg-red-900/20',         text: 'text-red-700 dark:text-red-300',         border: 'border-red-200 dark:border-red-700/50',       dot: 'bg-red-500',     icon: XCircle },
 };
 
 export function Budgets() {
@@ -125,7 +125,7 @@ export function Budgets() {
   // ── DETAIL VIEW ────────────────────────────────────────────────
   if (selectedBudget) {
     return (
-      <div className="min-h-screen bg-gray-50/60">
+      <div className="min-h-screen bg-gray-50/60 dark:bg-gray-950">
         <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-5">
 
           {/* Header */}
@@ -138,23 +138,23 @@ export function Budgets() {
                 &larr; Volver a presupuestos
               </button>
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                   Presupuesto #{selectedBudget.id.toString().padStart(4, '0')}
                 </h1>
                 <StatusBadge status={selectedBudget.status} />
               </div>
-              <p className="text-sm text-gray-500 mt-1">{selectedBudget.patient}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{selectedBudget.patient}</p>
             </div>
             <div className="relative shrink-0">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Exportar
               </button>
               {showExportMenu && (
-                <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-xl z-10 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl z-10 overflow-hidden">
                   {[
                     { icon: FileDown, label: 'Descargar PDF', action: () => { downloadBudgetPDF(selectedBudget, patientInfo, clinicInfo); toast.success('PDF descargado'); } },
                     { icon: FileSpreadsheet, label: 'Exportar CSV', action: () => { exportBudgetToCSV(selectedBudget); toast.success('CSV exportado'); } },
@@ -164,7 +164,7 @@ export function Budgets() {
                     <button
                       key={label}
                       onClick={() => { action(); setShowExportMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                       <Icon className="w-4 h-4 text-gray-400" />
                       {label}
@@ -176,33 +176,33 @@ export function Budgets() {
           </div>
 
           {/* Info card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 space-y-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 sm:p-6 space-y-6">
 
             {/* Patient + Budget info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
+                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5" /> Paciente
                 </p>
-                <p className="font-semibold text-gray-900">{selectedBudget.patient}</p>
-                <p className="text-sm text-gray-500 mt-1">Teléfono: +593 98 765 4321</p>
-                <p className="text-sm text-gray-500">Email: paciente@email.com</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{selectedBudget.patient}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Teléfono: +593 98 765 4321</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Email: paciente@email.com</p>
               </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
+                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <Hash className="w-3.5 h-3.5" /> Presupuesto
                 </p>
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Fecha</span>
-                    <span className="font-medium text-gray-800">{format(selectedBudget.date, 'dd MMM yyyy', { locale: es })}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Fecha</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{format(selectedBudget.date, 'dd MMM yyyy', { locale: es })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Odontólogo</span>
-                    <span className="font-medium text-gray-800">{selectedBudget.doctor}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Odontólogo</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{selectedBudget.doctor}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">N° Presupuesto</span>
+                    <span className="text-gray-500 dark:text-gray-400">N° Presupuesto</span>
                     <span className="font-bold text-[#0066CC]">#{selectedBudget.id.toString().padStart(4, '0')}</span>
                   </div>
                 </div>
@@ -211,24 +211,24 @@ export function Budgets() {
 
             {/* Items */}
             <div>
-              <p className="text-sm font-bold text-gray-800 mb-3">Detalle de Tratamientos</p>
-              <div className="hidden md:block border border-gray-100 rounded-xl overflow-hidden">
+              <p className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-3">Detalle de Tratamientos</p>
+              <div className="hidden md:block border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Descripción</th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Cant.</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">P. Unit.</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Descripción</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Cant.</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">P. Unit.</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                     {selectedBudget.items.map(item => (
                       <tr key={item.id}>
-                        <td className="px-4 py-3 text-sm text-gray-800">{item.description}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500 text-center">{item.quantity}</td>
-                        <td className="px-4 py-3 text-sm text-gray-800 text-right">${item.unitPrice.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900 text-right">${item.total.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-100">{item.description}</td>
+                        <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">{item.quantity}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-100 text-right">${item.unitPrice.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white text-right">${item.total.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -236,20 +236,20 @@ export function Budgets() {
               </div>
               <div className="md:hidden space-y-2">
                 {selectedBudget.items.map(item => (
-                  <div key={item.id} className="bg-gray-50 rounded-xl p-3.5">
-                    <p className="text-sm font-medium text-gray-900 mb-2">{item.description}</p>
+                  <div key={item.id} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3.5">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">{item.description}</p>
                     <div className="grid grid-cols-3 gap-2 text-xs text-center">
                       <div>
-                        <p className="text-gray-400 mb-0.5">Cant.</p>
-                        <p className="font-semibold text-gray-800">{item.quantity}</p>
+                        <p className="text-gray-400 dark:text-gray-500 mb-0.5">Cant.</p>
+                        <p className="font-semibold text-gray-800 dark:text-gray-100">{item.quantity}</p>
                       </div>
                       <div>
-                        <p className="text-gray-400 mb-0.5">P. Unit.</p>
-                        <p className="font-semibold text-gray-800">${item.unitPrice.toFixed(2)}</p>
+                        <p className="text-gray-400 dark:text-gray-500 mb-0.5">P. Unit.</p>
+                        <p className="font-semibold text-gray-800 dark:text-gray-100">${item.unitPrice.toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-gray-400 mb-0.5">Total</p>
-                        <p className="font-bold text-gray-900">${item.total.toFixed(2)}</p>
+                        <p className="text-gray-400 dark:text-gray-500 mb-0.5">Total</p>
+                        <p className="font-bold text-gray-900 dark:text-white">${item.total.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
@@ -258,39 +258,39 @@ export function Budgets() {
             </div>
 
             {/* Totals */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 space-y-2">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Subtotal</span>
-                <span className="font-medium text-gray-800">${selectedBudget.total.toFixed(2)}</span>
+                <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                <span className="font-medium text-gray-800 dark:text-gray-100">${selectedBudget.total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">IVA (21%)</span>
-                <span className="font-medium text-gray-800">${(selectedBudget.total * 0.21).toFixed(2)}</span>
+                <span className="text-gray-500 dark:text-gray-400">IVA (21%)</span>
+                <span className="font-medium text-gray-800 dark:text-gray-100">${(selectedBudget.total * 0.21).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between font-bold text-base pt-2 border-t border-blue-100">
-                <span className="text-gray-900">Total</span>
+              <div className="flex justify-between font-bold text-base pt-2 border-t border-blue-100 dark:border-blue-800/40">
+                <span className="text-gray-900 dark:text-white">Total</span>
                 <span className="text-[#0066CC] text-lg">${(selectedBudget.total * 1.21).toFixed(2)}</span>
               </div>
             </div>
 
             {/* Notes */}
-            <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-sm text-amber-700">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/40 rounded-xl px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
               <span className="font-semibold">Nota:</span> Este presupuesto tiene una validez de 30 días desde la fecha de emisión. Los precios incluyen materiales y mano de obra.
             </div>
           </div>
 
           {/* Pending actions */}
           {selectedBudget.status === 'pending' && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-              <p className="text-sm font-bold text-gray-800 mb-3">Acciones</p>
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+              <p className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-3">Acciones</p>
               <div className="flex flex-col sm:flex-row gap-2.5">
                 <button className="flex-1 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors">
                   Aprobar
                 </button>
-                <button className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                <button className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   Editar
                 </button>
-                <button className="flex-1 px-4 py-2.5 border border-red-200 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-50 transition-colors">
+                <button className="flex-1 px-4 py-2.5 border border-red-200 dark:border-red-700/50 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                   Rechazar
                 </button>
               </div>
@@ -303,14 +303,14 @@ export function Budgets() {
 
   // ── LIST VIEW ──────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50/60">
+    <div className="min-h-screen bg-gray-50/60 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Presupuestos</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Planes de tratamiento y propuestas</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Presupuestos</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Planes de tratamiento y propuestas</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -336,48 +336,48 @@ export function Budgets() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
                 <CheckCircle2 style={{ width: 18, height: 18 }} className="text-blue-600" />
               </div>
-              <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">
                 {budgets.filter(b => b.status === 'approved').length} aprob.
               </span>
             </div>
-            <p className="text-xs text-gray-500 mb-0.5">Aprobados</p>
-            <p className="text-xl font-bold text-gray-900">{budgets.filter(b => b.status === 'approved').length}/{budgets.length}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Aprobados</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{budgets.filter(b => b.status === 'approved').length}/{budgets.length}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center">
                 <Clock style={{ width: 18, height: 18 }} className="text-amber-500" />
               </div>
-              <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full">
                 {pendingCount} pend.
               </span>
             </div>
-            <p className="text-xs text-gray-500 mb-0.5">Pendientes</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Pendientes</p>
             <p className="text-xl font-bold text-amber-600">{pendingCount}</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-purple-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center">
                 <TrendingUp style={{ width: 18, height: 18 }} className="text-purple-600" />
               </div>
-              <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+              <span className="text-xs font-medium text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-2 py-0.5 rounded-full flex items-center gap-0.5">
                 <ArrowUpRight className="w-3 h-3" />activos
               </span>
             </div>
-            <p className="text-xs text-gray-500 mb-0.5">En Proceso</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">En Proceso</p>
             <p className="text-xl font-bold text-purple-600">{inProgressCount}</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -386,7 +386,7 @@ export function Budgets() {
                 placeholder="Buscar paciente o N° presupuesto..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all"
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
               />
             </div>
             <div className="flex gap-1.5 flex-wrap">
@@ -403,7 +403,7 @@ export function Budgets() {
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                     statusFilter === key
                       ? 'bg-[#0066CC] text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   {label}
@@ -414,28 +414,28 @@ export function Budgets() {
         </div>
 
         {/* Budget List */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
 
           {/* Desktop Table */}
           <div className="hidden md:block">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">N°</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Paciente</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Fecha</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Odontólogo</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</th>
-                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">N°</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Paciente</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden lg:table-cell">Fecha</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden lg:table-cell">Odontólogo</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                 {filteredBudgets.map(budget => (
                   <tr
                     key={budget.id}
                     onClick={() => setSelectedBudget(budget)}
-                    className="group hover:bg-blue-50/40 cursor-pointer transition-colors"
+                    className="group hover:bg-blue-50/40 dark:hover:bg-blue-900/20 cursor-pointer transition-colors"
                   >
                     <td className="px-5 py-4">
                       <span className="text-sm font-bold text-[#0066CC]">#{budget.id.toString().padStart(4, '0')}</span>
@@ -445,26 +445,26 @@ export function Budgets() {
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
                           {budget.patient.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                         </div>
-                        <span className="text-sm font-medium text-gray-800">{budget.patient}</span>
+                        <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{budget.patient}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 hidden lg:table-cell">
+                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">
                       {format(budget.date, 'dd MMM yyyy', { locale: es })}
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 hidden lg:table-cell">{budget.doctor}</td>
+                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">{budget.doctor}</td>
                     <td className="px-5 py-4"><StatusBadge status={budget.status} /></td>
                     <td className="px-5 py-4 text-right">
-                      <span className="text-sm font-bold text-gray-900">${budget.total.toFixed(2)}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">${budget.total.toFixed(2)}</span>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={e => { e.stopPropagation(); setSelectedBudget(budget); }} className="p-2 rounded-lg hover:bg-blue-100 text-gray-400 hover:text-[#0066CC] transition-colors">
+                        <button onClick={e => { e.stopPropagation(); setSelectedBudget(budget); }} className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-400 hover:text-[#0066CC] transition-colors">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button onClick={e => e.stopPropagation()} className="p-2 rounded-lg hover:bg-blue-100 text-gray-400 hover:text-[#0066CC] transition-colors">
+                        <button onClick={e => e.stopPropagation()} className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-400 hover:text-[#0066CC] transition-colors">
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button onClick={e => e.stopPropagation()} className="p-2 rounded-lg hover:bg-blue-100 text-gray-400 hover:text-[#0066CC] transition-colors">
+                        <button onClick={e => e.stopPropagation()} className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-400 hover:text-[#0066CC] transition-colors">
                           <Download className="w-4 h-4" />
                         </button>
                       </div>
@@ -476,12 +476,12 @@ export function Budgets() {
           </div>
 
           {/* Mobile Cards */}
-          <div className="md:hidden divide-y divide-gray-50">
+          <div className="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
             {filteredBudgets.map(budget => (
               <div
                 key={budget.id}
                 onClick={() => setSelectedBudget(budget)}
-                className="p-4 hover:bg-gray-50/80 active:bg-gray-100 cursor-pointer transition-colors"
+                className="p-4 hover:bg-gray-50/80 dark:hover:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-700 cursor-pointer transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
@@ -489,17 +489,17 @@ export function Budgets() {
                       {budget.patient.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{budget.patient}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{budget.patient}</p>
                       <p className="text-xs text-[#0066CC] font-medium">#{budget.id.toString().padStart(4, '0')}</p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <StatusBadge status={budget.status} />
-                    <span className="text-base font-bold text-gray-900">${budget.total.toFixed(2)}</span>
+                    <span className="text-base font-bold text-gray-900 dark:text-white">${budget.total.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs text-gray-400">
+                  <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
                       {format(budget.date, 'dd/MM/yyyy', { locale: es })}
@@ -507,13 +507,13 @@ export function Budgets() {
                     <span>{budget.doctor}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors">
+                    <button onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 transition-colors">
                       <Download className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors">
+                    <button onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 transition-colors">
                       <Edit className="w-3.5 h-3.5" />
                     </button>
-                    <ChevronRight className="w-4 h-4 text-gray-300 ml-1" />
+                    <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 ml-1" />
                   </div>
                 </div>
               </div>
@@ -532,13 +532,13 @@ export function Budgets() {
       {/* MODAL — NUEVO PRESUPUESTO */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white w-full sm:rounded-2xl sm:max-w-3xl flex flex-col shadow-2xl" style={{ maxHeight: '95vh' }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+          <div className="bg-white dark:bg-gray-900 w-full sm:rounded-2xl sm:max-w-3xl flex flex-col shadow-2xl" style={{ maxHeight: '95vh' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
               <div>
-                <h2 className="text-base font-bold text-gray-900">Nuevo Presupuesto</h2>
-                <p className="text-xs text-gray-400">Completa el plan de tratamiento</p>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">Nuevo Presupuesto</h2>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Completa el plan de tratamiento</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                 <X className="w-4 h-4 text-gray-400" />
               </button>
             </div>
@@ -546,8 +546,8 @@ export function Budgets() {
             <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Paciente *</label>
-                  <select className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Paciente *</label>
+                  <select className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
                     <option value="">Seleccionar paciente...</option>
                     <option>Ana García Martínez</option>
                     <option>Carlos López Fernández</option>
@@ -555,8 +555,8 @@ export function Budgets() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Odontólogo *</label>
-                  <select className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Odontólogo *</label>
+                  <select className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
                     <option value="">Seleccionar...</option>
                     <option>Dr. Sánchez</option>
                     <option>Dra. Martínez</option>
@@ -567,36 +567,36 @@ export function Budgets() {
 
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-bold text-gray-800">Tratamientos</p>
-                  <button onClick={addBudgetItem} className="text-xs font-semibold text-[#0066CC] hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100">Tratamientos</p>
+                  <button onClick={addBudgetItem} className="text-xs font-semibold text-[#0066CC] hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
                     <Plus className="w-3.5 h-3.5" /> Agregar
                   </button>
                 </div>
                 <div className="space-y-3">
                   {budgetItems.map(item => (
-                    <div key={item.id} className="bg-gray-50 rounded-xl p-3.5 space-y-3">
+                    <div key={item.id} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3.5 space-y-3">
                       <input
                         type="text"
                         placeholder="Descripción del tratamiento"
                         value={item.description}
                         onChange={e => updateBudgetItem(item.id, 'description', e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all"
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                       />
                       <div className="flex items-end gap-2">
                         <div className="flex-1">
-                          <label className="block text-xs text-gray-400 mb-1">Cant.</label>
-                          <input type="number" value={item.quantity} min="1" onChange={e => updateBudgetItem(item.id, 'quantity', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all" />
+                          <label className="block text-xs text-gray-400 dark:text-gray-500 mb-1">Cant.</label>
+                          <input type="number" value={item.quantity} min="1" onChange={e => updateBudgetItem(item.id, 'quantity', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" />
                         </div>
                         <div className="flex-1">
-                          <label className="block text-xs text-gray-400 mb-1">Precio</label>
-                          <input type="number" value={item.unitPrice} min="0" step="0.01" onChange={e => updateBudgetItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all" />
+                          <label className="block text-xs text-gray-400 dark:text-gray-500 mb-1">Precio</label>
+                          <input type="number" value={item.unitPrice} min="0" step="0.01" onChange={e => updateBudgetItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" />
                         </div>
                         <div className="flex-1">
-                          <label className="block text-xs text-gray-400 mb-1">Total</label>
-                          <span className="block px-3 py-2 text-sm font-bold text-gray-900">${item.total.toFixed(2)}</span>
+                          <label className="block text-xs text-gray-400 dark:text-gray-500 mb-1">Total</label>
+                          <span className="block px-3 py-2 text-sm font-bold text-gray-900 dark:text-white">${item.total.toFixed(2)}</span>
                         </div>
                         {budgetItems.length > 1 && (
-                          <button onClick={() => removeBudgetItem(item.id)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                          <button onClick={() => removeBudgetItem(item.id)} className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
@@ -606,29 +606,29 @@ export function Budgets() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 space-y-2">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span className="font-medium text-gray-800">${calculateTotal().toFixed(2)}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-100">${calculateTotal().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">IVA (21%)</span>
-                  <span className="font-medium text-gray-800">${(calculateTotal() * 0.21).toFixed(2)}</span>
+                  <span className="text-gray-500 dark:text-gray-400">IVA (21%)</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-100">${(calculateTotal() * 0.21).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-base pt-2 border-t border-blue-100">
-                  <span className="text-gray-900">Total</span>
+                <div className="flex justify-between font-bold text-base pt-2 border-t border-blue-100 dark:border-blue-800/40">
+                  <span className="text-gray-900 dark:text-white">Total</span>
                   <span className="text-[#0066CC] text-lg">${(calculateTotal() * 1.21).toFixed(2)}</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Notas (opcional)</label>
-                <textarea rows={3} placeholder="Observaciones o condiciones del presupuesto..." className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all resize-none" />
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Notas (opcional)</label>
+                <textarea rows={3} placeholder="Observaciones o condiciones del presupuesto..." className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-all resize-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100" />
               </div>
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 flex flex-col-reverse sm:flex-row gap-2.5 shrink-0">
-              <button onClick={() => setShowModal(false)} className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-semibold border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
+            <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-800 flex flex-col-reverse sm:flex-row gap-2.5 shrink-0">
+              <button onClick={() => setShowModal(false)} className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-semibold border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 Cancelar
               </button>
               <button

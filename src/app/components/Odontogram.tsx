@@ -452,17 +452,17 @@ export function Odontogram() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(`/patients/${id}`)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors">
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Odontograma</h1>
-            <p className="text-sm text-gray-400 mt-0.5">Ana García Martínez · FDI</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Odontograma</h1>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">Ana García Martínez · FDI</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={handleReset}
-            className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
+            className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <RotateCcw className="w-3.5 h-3.5" />Restablecer
           </button>
           <button onClick={handleSave}
@@ -473,10 +473,10 @@ export function Odontogram() {
       </div>
 
       {/* chart card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Arcada Superior</span>
-          <span className="text-xs text-gray-400">
+          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Arcada Superior</span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">
             {condCount} diente{condCount !== 1 ? 's' : ''} con condición · <span className="text-blue-500">Haz clic en un diente para editarlo</span>
           </span>
         </div>
