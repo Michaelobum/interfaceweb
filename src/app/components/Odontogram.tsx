@@ -263,28 +263,28 @@ function ToothModal({ fdi, condition, onSave, onClear, onClose }: ModalProps) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-gray-800"
         style={{ animation: 'modalIn 0.18s ease-out' }}
       >
         {/* ── modal header ── */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
               <svg viewBox="-16 -18 32 36" className="w-5 h-5">
                 <ToothShape fdi={fdi} condition={toothPreview} />
               </svg>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-gray-900">Diente #{fdi}</span>
-                <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">
+                <span className="text-base font-bold text-gray-900 dark:text-white">Diente #{fdi}</span>
+                <span className="text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-full font-medium">
                   FDI · Q{quadrant}
                 </span>
               </div>
-              <p className="text-xs text-gray-400">{TYPE_NAMES[type]}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">{TYPE_NAMES[type]}</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-500">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -294,9 +294,9 @@ function ToothModal({ fdi, condition, onSave, onClear, onClose }: ModalProps) {
           {/* ── surface selector ── */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Carilla / Superficie</p>
+              <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Carilla / Superficie</p>
               {Object.keys(surfaces).length > 0 && (
-                <button onClick={() => setSurfaces({})} className="text-xs text-red-400 hover:text-red-600 transition-colors">
+                <button onClick={() => setSurfaces({})} className="text-xs text-red-400 hover:text-red-600 transition-colors dark:text-red-300 dark:hover:text-red-400">
                   Limpiar superficies
                 </button>
               )}
@@ -311,7 +311,7 @@ function ToothModal({ fdi, condition, onSave, onClear, onClose }: ModalProps) {
             />
 
             {hoveredSurf && (
-              <p className="text-[11px] text-center text-blue-500 mt-2 font-medium">
+              <p className="text-[11px] text-center text-blue-500 dark:text-blue-400 mt-2 font-medium">
                 {surfaces[hoveredSurf]
                   ? `Clic para quitar: ${SURFACE_NAMES[hoveredSurf]}`
                   : `Clic para marcar: ${SURFACE_NAMES[hoveredSurf]}`}
@@ -319,11 +319,11 @@ function ToothModal({ fdi, condition, onSave, onClear, onClose }: ModalProps) {
             )}
           </div>
 
-          <hr className="border-gray-100" />
+          <hr className="border-gray-100 dark:border-gray-800" />
 
           {/* ── treatment ── */}
           <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2.5">Tratamiento</p>
+            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2.5">Tratamiento</p>
             <div className="grid grid-cols-2 gap-2">
               {STATUSES.map(s => (
                 <button
@@ -357,29 +357,31 @@ function ToothModal({ fdi, condition, onSave, onClear, onClose }: ModalProps) {
 
           {/* ── notes ── */}
           <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Notas clínicas</p>
+            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+  Notas clínicas
+</p>
             <textarea
               rows={2}
               value={note}
               onChange={e => setNote(e.target.value)}
               placeholder="Diagnóstico, observaciones, próximos pasos…"
-              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl
-                         focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none bg-gray-50"
+              className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl
+           focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800/50 resize-none bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
 
         {/* ── footer ── */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/60">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/50">
           <button
             onClick={() => { onClear(fdi); onClose(); }}
-            className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-red-50"
+            className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Limpiar diente
           </button>
           <div className="flex gap-2">
-            <button onClick={onClose} className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors">
+            <button onClick={onClose} className="px-4 py-2 text-sm text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               Cancelar
             </button>
             <button
@@ -446,10 +448,11 @@ export function Odontogram() {
   const condCount = Object.keys(toothData).length;
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="min-h-screen bg-gray-50/60 dark:bg-gray-950">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
 
       {/* header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(`/patients/${id}`)}
             className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -460,13 +463,13 @@ export function Odontogram() {
             <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">Ana García Martínez · FDI</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button onClick={handleReset}
             className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <RotateCcw className="w-3.5 h-3.5" />Restablecer
           </button>
           <button onClick={handleSave}
-            className="flex items-center gap-2 px-4 py-2 text-sm bg-[#0066CC] text-white rounded-xl hover:bg-[#0052A3] transition-colors">
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-[#0066CC] text-white rounded-xl hover:bg-[#0052A3] transition-colors shadow-sm shadow-blue-200">
             <Save className="w-3.5 h-3.5" />Guardar
           </button>
         </div>
@@ -477,7 +480,7 @@ export function Odontogram() {
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Arcada Superior</span>
           <span className="text-xs text-gray-400 dark:text-gray-500">
-            {condCount} diente{condCount !== 1 ? 's' : ''} con condición · <span className="text-blue-500">Haz clic en un diente para editarlo</span>
+            {condCount} diente{condCount !== 1 ? 's' : ''} con condición · <span className="text-blue-500 dark:text-blue-400">Haz clic en un diente para editarlo</span>
           </span>
         </div>
 
@@ -513,15 +516,17 @@ export function Odontogram() {
         </svg>
 
         <div className="text-center mt-0.5 mb-3">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Arcada Inferior</span>
+          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+            Arcada Inferior
+          </span>
         </div>
 
-        <div className="border-t border-gray-50 pt-3">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
           <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {STATUSES.map(s => (
               <div key={s.value} className="flex items-center gap-1.5">
                 <div className="w-3.5 h-3.5 rounded border" style={{ background: s.fill, borderColor: s.stroke }} />
-                <span className="text-xs text-gray-500">{s.label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{s.label}</span>
               </div>
             ))}
           </div>
@@ -529,27 +534,31 @@ export function Odontogram() {
       </div>
 
       {/* history */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
-          <h3 className="font-semibold text-gray-800">Historial de Cambios</h3>
-          <span className="text-xs text-gray-400">{HISTORY.length} registros</span>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100">Historial de Cambios</h3>
+          <span className="text-xs text-gray-400 dark:text-gray-500">{HISTORY.length} registros</span>
         </div>
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-gray-50 dark:divide-gray-800">
           {HISTORY.map((h, i) => {
             const s = getStatus(h.status);
             return (
-              <div key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors">
+              <div key={i} className="flex items-start gap-4 px-6 py-4 hover:bg-gray-50/60 dark:hover:bg-gray-800/60 transition-colors">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
                   style={{ background: s?.fill, color: s?.text, border: `1.5px solid ${s?.stroke}` }}>
                   {h.tooth}
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-gray-800">{h.treatment}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                      style={{ background: s?.fill, color: s?.text }}>{s?.label}</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{h.treatment}</span>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      style={{ background: s?.fill, color: s?.text }}
+                    >
+                      {s?.label}
+                    </span>
                   </div>
-                  <p className="text-xs text-gray-400 mt-0.5">{h.doctor} · {h.date}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{h.doctor} · {h.date}</p>
                 </div>
               </div>
             );
@@ -567,6 +576,7 @@ export function Odontogram() {
           onClose={closeModal}
         />
       )}
+    </div>
     </div>
   );
 }
